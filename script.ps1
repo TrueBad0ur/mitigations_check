@@ -25,6 +25,7 @@ Function getWindowsVersion {
 
 Function checkDEP {
 	$supportPolicyValue = -1
+	$AvailableValue = -1
 	$result = "Error occured!\n"
 	
 	# AlwaysOff - 0
@@ -39,24 +40,26 @@ Function checkDEP {
 	#OptOut - 3 
 	$supportPolicyOptOut= "DEP is enabled by default for all 32-bit applications. A user or administrator can explicitly remove support for a 32-bit application by adding the application to an exceptions list"
 
-	$supportPolicyValue =  Get-WmiObject Win32_OperatingSystem | Select-Object -ExpandProperty DataExecutionPrevention_SupportPolicy
-	Write-Host "[DEP check]" -ForegroundColor red
-	if ( $supportPolicyValue -eq 0 ) { 
-		$result = $supportPolicyAlwaysOff
-		Write-Host $result -ForegroundColor green
-	} elseif ( $supportPolicyValue -eq 1 ) {
-		$result = $supportPolicyAlwaysOn
-		Write-Host $result -ForegroundColor green
-	} elseif ( $supportPolicyValue -eq 2 ) {
-		$result = $supportPolicyOptIn
-		Write-Host $result -ForegroundColor green
-	} elseif ( $supportPolicyValue -eq 3 ) {
-		$result = $supportPolicyOptOut
-		Write-Host $result -ForegroundColor green
+	$supportPolicyValue = Get-WmiObject Win32_OperatingSystem | Select-Object -ExpandProperty DataExecutionPrevention_Available
+	if ($supportPolicyValue) {
+		$supportPolicyValue =  Get-WmiObject Win32_OperatingSystem | Select-Object -ExpandProperty DataExecutionPrevention_SupportPolicy
+		Write-Host "[DEP check]" -ForegroundColor red
+		if ( $supportPolicyValue -eq 0 ) { 
+			$result = $supportPolicyAlwaysOff
+			Write-Host $result -ForegroundColor green
+		} elseif ( $supportPolicyValue -eq 1 ) {
+			$result = $supportPolicyAlwaysOn
+			Write-Host $result -ForegroundColor green
+		} elseif ( $supportPolicyValue -eq 2 ) {
+			$result = $supportPolicyOptIn
+			Write-Host $result -ForegroundColor green
+		} elseif ( $supportPolicyValue -eq 3 ) {
+			$result = $supportPolicyOptOut
+			Write-Host $result -ForegroundColor green
+		}
 	}
-
-
 }
+
 clearScreen
 $windowsVersion = getWindowsVersion
 
