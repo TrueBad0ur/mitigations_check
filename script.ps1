@@ -57,9 +57,12 @@ Function checkDEP {
 			$result = $supportPolicyOptOut
 			Write-Host $result -ForegroundColor green
 		}
+		Write-Host "(Change will be applied after reboot)`r`nTo turn it off run: "  -ForegroundColor gray
+		Write-Host 'cmd.exe /c "bcdedit.exe /set {current} nx AlwaysOff"' -ForegroundColor gray
 	}
 }
 
+########################## Script Start ##########################
 clearScreen
 $windowsVersion = getWindowsVersion
 
