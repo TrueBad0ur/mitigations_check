@@ -1,3 +1,30 @@
+Function checkASLR {
+	$valueFromRegistry = -1
+	Write-Host "`r`n[ASLR check]" -ForegroundColor red
+	Write-Host "Looks like you cannot turn ALSR off for 64 bit processes" -ForegroundColor red
+	Try {
+		$PSVersion = Get-Host | Select-Object -ExpandProperty Version | Select-Object -ExpandProperty Major
+		if ( $PSVersion -lt 5 ) {
+			$valueFromRegistry = $((Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management").MoveImages)
+		} else {
+			$valueFromRegistry = Get-ItemPropertyValue 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' 'MoveImages'
+		}
+	} Catch [System.Management.Automation.PSArgumentException] {
+    	"Registry Key Property missing"
+    	Write-Host "ASLR is enabled" -ForegroundColor green
+	} Catch [System.Management.Automation.ItemNotFoundException] {
+		"Registry Key itself is missing"
+		Write-Host "ASLR is enabled" -ForegroundColor green
+	}
+	if ( $valueFromRegistry -eq 1) {
+		Write-Host "ASLR is enabled" -ForegroundColor green
+		Write-Host "To turn it off run: "  -ForegroundColor gray
+		Write-Host 'New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "MoveImages" -Value 0 -PropertyType DWORD -Force' -ForegroundColor gray
+	} elseif ( $valueFromRegistry -eq 0 ) {
+		Write-Host "ASLR is disabled" -ForegroundColor green
+	}
+}
+
 Function checkSEHOP {
 	Write-Host "`r`n[SEHOP check]" -ForegroundColor red
 	$isEnabledFlag = 1
@@ -57,7 +84,8 @@ Function getWindowsVersion {
 }
 
 Function checkDEP {
-	Write-Host 'DEP is "always on" for 64bit processes on 64bit versions of Windows and it cannot be disabled.' -ForegroundColor red
+	Write-Host "[DEP check]" -ForegroundColor red
+	Write-Host "DEP is "always on" for 64bit processes on 64bit versions of Windows and it cannot be disabled." -ForegroundColor red
 	$supportPolicyValue = -1
 	$AvailableValue = -1
 	$result = "Error occured!\n"
@@ -77,7 +105,6 @@ Function checkDEP {
 	$supportPolicyValue = Get-WmiObject Win32_OperatingSystem | Select-Object -ExpandProperty DataExecutionPrevention_Available
 	if ($supportPolicyValue) {
 		$supportPolicyValue =  Get-WmiObject Win32_OperatingSystem | Select-Object -ExpandProperty DataExecutionPrevention_SupportPolicy
-		Write-Host "[DEP check]" -ForegroundColor red
 		if ( $supportPolicyValue -eq 0 ) { 
 			$result = $supportPolicyAlwaysOff
 			Write-Host $result -ForegroundColor green
@@ -101,3 +128,4 @@ clearScreen
 $windowsVersion = getWindowsVersion
 checkDEP
 checkSEHOP
+checkASLR
