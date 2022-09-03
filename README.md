@@ -11,3 +11,4 @@ Script to check which windows mitigations are turned on.
 ## Todo
 - Other mitigations
 - Add SP (Service Pack) check support
+- Add DEP x64/x32 check
