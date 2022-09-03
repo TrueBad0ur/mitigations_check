@@ -19,6 +19,8 @@ Function checkSEHOP {
 	if ( $isEnabledFlag -eq 1 -And $valueFromRegistry -ne -1 ) {
 		if ( $valueFromRegistry -eq 0 ) {
 			Write-Host "SEHOP is enabled" -ForegroundColor green
+			Write-Host "To turn it off run: "  -ForegroundColor gray
+			Write-Host 'New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "DisableExceptionChainValidation" -Value 1 -PropertyType DWORD -Force' -ForegroundColor gray
 		} elseif ($valueFromRegistry -eq 1) {
 			Write-Host "SEHOP is disabled" -ForegroundColor green
 		}
