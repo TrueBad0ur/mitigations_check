@@ -1,3 +1,30 @@
+Function checkSEHOP {
+	Write-Host "`r`n[SEHOP check]" -ForegroundColor red
+	$isEnabledFlag = 1
+	$ErrorActionPreference = "stop"
+	$valueFromRegistry = -1
+	Try {
+    	$valueFromRegistry = Get-ItemPropertyValue 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' 'DisableExceptionChainValidation'
+	} Catch [System.Management.Automation.PSArgumentException] {
+		$isEnabledFlag = 0
+    	"Registry Key Property missing"
+    	Write-Host "SEHOP is disabled" -ForegroundColor green
+	} Catch [System.Management.Automation.ItemNotFoundException] {
+		$isEnabledFlag = 0
+		"Registry Key itself is missing"
+		Write-Host "SEHOP is disabled" -ForegroundColor green
+	}
+	Finally { $ErrorActionPreference = "Continue" }
+
+	if ( $isEnabledFlag -eq 1 -And $valueFromRegistry -ne -1 ) {
+		if ( $valueFromRegistry -eq 0 ) {
+			Write-Host "SEHOP is enabled" -ForegroundColor green
+		} elseif ($valueFromRegistry -eq 1) {
+			Write-Host "SEHOP is disabled" -ForegroundColor green
+		}
+	}
+}
+
 Function clearScreen {
 	cls
 }
@@ -20,7 +47,6 @@ Function getWindowsVersion {
 		Write-Host "Analyzing Microsoft Windows 10`r`n" -ForegroundColor red
 		return 3
 	}
-	
 }
 
 Function checkDEP {
@@ -65,5 +91,5 @@ Function checkDEP {
 ########################## Script Start ##########################
 clearScreen
 $windowsVersion = getWindowsVersion
-
 checkDEP
+checkSEHOP
