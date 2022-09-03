@@ -1,2 +1,13 @@
 # mitigations_check
-Script to check which windows mitigations are turned on
+## Description
+Script to check which windows mitigations are turned on.
+
+
+## Implemented Mitigations
+- [X] DEP
+- [X] SEHOP
+- [ ] ALSR
+
+## Todo
+- Other mitigations
+- Add SP (Service Pack) check support
