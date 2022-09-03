@@ -72,6 +72,7 @@ Function checkDEP {
 	if ($supportPolicyValue) {
 		$supportPolicyValue =  Get-WmiObject Win32_OperatingSystem | Select-Object -ExpandProperty DataExecutionPrevention_SupportPolicy
 		Write-Host "[DEP check]" -ForegroundColor red
+		Write-Host '*DEP is "always on" for 64bit processes on 64bit versions of Windows and it cannot be disabled.' -ForegroundColor red
 		if ( $supportPolicyValue -eq 0 ) { 
 			$result = $supportPolicyAlwaysOff
 			Write-Host $result -ForegroundColor green
