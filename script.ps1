@@ -4,7 +4,12 @@ Function checkSEHOP {
 	$ErrorActionPreference = "stop"
 	$valueFromRegistry = -1
 	Try {
-    	$valueFromRegistry = Get-ItemPropertyValue 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' 'DisableExceptionChainValidation'
+		$PSVersion = Get-Host | Select-Object -ExpandProperty Version | Select-Object -ExpandProperty Major
+		if ( $PSVersion -lt 5 ) {
+				$valueFromRegistry = $((Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel").DisableExceptionChainValidation)
+			} else {
+				$valueFromRegistry = Get-ItemPropertyValue 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' 'DisableExceptionChainValidation'
+			}
 	} Catch [System.Management.Automation.PSArgumentException] {
 		$isEnabledFlag = 0
     	"Registry Key Property missing"
@@ -52,6 +57,7 @@ Function getWindowsVersion {
 }
 
 Function checkDEP {
+	Write-Host 'DEP is "always on" for 64bit processes on 64bit versions of Windows and it cannot be disabled.' -ForegroundColor red
 	$supportPolicyValue = -1
 	$AvailableValue = -1
 	$result = "Error occured!\n"
@@ -72,7 +78,6 @@ Function checkDEP {
 	if ($supportPolicyValue) {
 		$supportPolicyValue =  Get-WmiObject Win32_OperatingSystem | Select-Object -ExpandProperty DataExecutionPrevention_SupportPolicy
 		Write-Host "[DEP check]" -ForegroundColor red
-		Write-Host '*DEP is "always on" for 64bit processes on 64bit versions of Windows and it cannot be disabled.' -ForegroundColor red
 		if ( $supportPolicyValue -eq 0 ) { 
 			$result = $supportPolicyAlwaysOff
 			Write-Host $result -ForegroundColor green
