@@ -6,7 +6,7 @@ Script to check which windows mitigations are turned on.
 ## Implemented Mitigations
 - [X] DEP
 - [X] SEHOP
-- [X] ALSR
+- [X] ASLR
 
 ## Todo
 - Other mitigations
